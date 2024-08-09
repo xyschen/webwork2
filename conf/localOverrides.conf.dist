@@ -1,0 +1,598 @@
+#!perl
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+# This file should be used to override any of the default settings in defaults.config.
+# The most commonly changed settings are provided as examples below, but any directive
+# in defaults.config can be copied to this file with the value changed.
+# If you wish to make changes to an individual course, copy the entry into the
+# course.conf file in the respective course directory.
+
+################################################################################
+# localOverrides.conf  -- this file
+################################################################################
+
+# localOverrides.conf contains the local modifications commonly made
+# when installing WeBWorK on a new site. The configurations in defaults.config
+# and in database.conf can usually remain untouched.
+#
+# localOverride.conf is the appropriate place to override permission settings,
+# paths to macros and other customizations that are specific to your
+# WeBWorK site
+
+
+
+################################################################################
+# Additional mail settings in defaults.config can be overridden here
+################################################################################
+
+# By default, feedback is sent to all users who have permission to
+# receive_feedback in a course. If this list is non-empty, feedback is also sent
+# to the addresses specified here.
+#
+# * If you want to disable feedback altogether, leave this empty and set
+#   $permissionLevels{submit_feedback} = 'nobody'. This will cause the
+#   feedback button to go away as well.
+#
+# * If you want to send email ONLY to addresses in this list, set
+#   $permissionLevels{receive_feedback} = 'nobody'.
+#
+# Items in this list may be bare addresses, or RFC822 mailboxes, like:
+#   'Joe User <joe.user@example.com>'
+# The advantage of this form is that the resulting email will include the name
+# of the recipient in the "To" field of the email.
+
+$mail{feedbackRecipients}    = [
+	#'prof1@yourserver.yourdomain.edu',
+	#'prof2@yourserver.yourdomain.edu',
+];
+
+# Should the studentID be included in the feedback email when feedbackVerbosity > 0:
+# The default is yes. Uncomment the line below to block it from being included.
+# Blocking it from being included is recommended if the studentID is "personal"
+# informations whose privacy should be maintained (ex. a government issued ID number).
+# The setting can also be made in the course.conf file for specific courses.
+#$blockStudentIDinFeedback = 1;
+
+### additional mail overrides
+# Use this to customize the text of the feedback button.
+#$feedback_button_name = "Email Instructor";
+
+################################################################################
+# Theme
+################################################################################
+
+#$defaultTheme = "math4";
+#$defaultThemeTemplate = "system";
+
+# The institution logo should be an image file in the theme's images folder
+#$institutionLogo = 'my_school_logo.png';
+#$institutionURL  = 'http://www.myschool.edu';
+#$institutionName = 'My University';
+
+################################################################################
+# Language
+################################################################################
+
+#$language = "en";
+# Check the directory .../webwork2/lib/WeBWorK/Localize to what languages are
+# currently supported (e.g. en, es,. fr, heb, tr, zk_hk).
+
+################################################################################
+# Default screen header files
+################################################################################
+
+# This is the site_info file.  The default filename is site_info.txt.
+# You should consider changing this to point to a file which is not tracked by
+# git, as any changes you make to site_info.txt will be overwritten if you
+# upgrade WeBWorK to a new version.
+#$webworkFiles{site_info} = "$webworkDirs{htdocs}/our_site_info.txt";
+
+
+# The setHeader precedes each set in hardcopy output. It is a PG file.
+# Uncomment one of these to use a file from within the course templates directory
+# rather than a centrally-stored file shared by all courses.
+
+#$webworkFiles{hardcopySnippets}{setHeader} = "$courseDirs{templates}/defaultSetHeader.pg";
+#$webworkFiles{hardcopySnippets}{setHeader} = "$courseDirs{templates}/myHardcopyHeaderFile.pg";
+
+# The set header is displayed on the problem set page. It is a PG file.
+# One of these default files which is used if a specific files is not selected
+# Uncomment one of these to use a file from within the course templates directory
+# rather than a centrally-stored file shared by all courses.
+
+#$webworkFiles{screenSnippets}{setHeader} = "$courseDirs{templates}/defaultSetHeader.pg";
+#$webworkFiles{screenSnippets}{setHeader} = "$courseDirs{templates}/myScreenHeaderFile.pg";
+
+################################################################################
+# Settings for the admin course
+################################################################################
+
+# Provide a list of model courses which are not real courses, but from which
+# the templates for a new course can be copied.
+#$modelCoursesForCopy = [ "modelCourse", "anotherModelCourse", "aThirdOne" ];
+
+################################################################################
+# OpenProblemLibrary
+################################################################################
+
+
+# For configuration instructions, see:
+# http://webwork.maa.org/wiki/Open_Problem_Library
+# The directory containing the open problem library files. Set to "" if no problem
+# library is installed.
+# NationalProblemLibrary (NPL) has been renamed to OpenProblemLibrary (OPL)
+# If the OPL files are not stored in the standard locations, then uncomment
+# these lines and replace with the correct paths.
+
+#$problemLibrary{root}       = "/opt/webwork/libraries/webwork-open-problem-library/OpenProblemLibrary";
+#$contribLibrary{root}       = "/opt/webwork/libraries/webwork-open-problem-library/Contrib";
+#$problemLibrary{version}    = "2.5";
+
+# These flags control if statistics on opl problems are shown in the library
+# browser.  If you do not want to include local statistics uncomment this line.
+#$problemLibrary{showLibraryLocalStats} = 0;
+# To disable global statistics uncomment this line.
+#$problemLibrary{showLibraryGlobalStats} = 0;
+
+# Additional library buttons can be added to the Library Browser (SetMaker.pm)
+# by adding the libraries you want to the following line.  For each key=>value
+# in the list, if a directory (or link to a directory) with name 'key' appears
+# in the templates directory, then a button with name 'value' will be placed at
+# the top of the problem browser.  (No button will appear if there is no
+# directory or link with the given name in the templates directory.)  For
+# example,
+#
+# $courseFiles{problibs} = {rochester => "Rochester", asu => "ASU"};
+#
+# would add two buttons, one for the Rochester library and one for the ASU
+# library, provided templates/rochester and templates/asu exists either as
+# subdirectories or links to other directories. The "NPL Directory" button
+# activated below gives access to all the directories in the National
+# Problem Library.
+
+#$courseFiles{problibs}    = {
+	#Library          => "OPL Directory",
+	#capaLibrary      => "CAPA",
+	#Contrib          => "Contrib",
+# the following are not really needed but you can
+# create links to your own private libraries this way.
+	#rochesterLibrary => "Rochester",
+	#unionLibrary     => "Union",
+	#asuLibrary       => "Arizona State",
+	#dcdsLibrary      => "Detroit CDS",
+	#dartmouthLibrary => "Dartmouth",
+	#indianaLibrary   => "Indiana",
+	#osuLibrary       => "Ohio State",
+#};
+
+
+################################################################################
+# Permission levels
+################################################################################
+
+# The default roles are defined in defaults.config.  To change the list of available
+# roles, copy the %userRoles hash from defaults.config into this file with the
+# appropriate changes.
+
+# User roles in order of increasing permissions. Each level has all of the privileges of
+# the lower levels.
+# 	guest
+# 	student
+# 	login_proctor
+# 	grade_proctor
+# 	ta
+# 	professor
+# 	admin
+
+# The complete list of permissions is available in defaults.config.  If you want
+# to change the lowest role which has that permission, use the following syntax:
+
+# $permissionLevels{login} = "guest";
+
+# The above code would give the permission to login to any user with permission
+# level guest or higher.
+
+# By default answers for all users are logged to the past_answers table in the database
+# and the myCourse/logs/answer_log file.  If you only want answers logged for users below
+# a certain permission level, then change this setting.  e.g. by setting this to
+# "professor", then answers would not be logged for anyone with permission level of
+# "professor" or higher
+#$permissionLevels{dont_log_past_answers} = "professor";
+
+#$permissionLevels{record_set_version_answers_when_acting_as_student} = "professor";
+#$permissionLevels{record_answers_when_acting_as_student} = "professor";
+
+################################################################################
+# Default settings for the problem editor pages
+################################################################################
+
+# This sets if the PG editor should use a js based "codemirror" editor or
+# just a textarea
+#$options{PGCodeMirror} = 0;
+
+# This sets if mathview is available on the PG editor for use as a minimal latex equation editor
+#$options{PGMathView} = 1;
+# This sets if MathQuill is available on the PG editor for use as a minimal latex equation editor
+#$options{PGMathQuill}= 1;
+
+################################################################################
+# PG subsystem options
+################################################################################
+
+# List of enabled display modes. Comment out any modes you don't wish to make
+# available for use.
+# The first uncommented option is the default for instructors rendering problems
+# in the homework sets editor.
+#$pg{displayModes} = [
+	#"MathJax",     # render TeX math expressions on the client side using MathJax
+	                # we strongly recommend people install and use MathJax, and it is required if you want to use mathview
+	#"images",      # display math expressions as images generated by dvipng
+	#"plainText",   # display raw TeX for math expressions
+#];
+
+
+# Default display mode. Should be an uncommented item listed above.
+#$pg{options}{displayMode} = "images";
+
+################################################################################
+#  Adding to the macro file search path. (Check with entries in defaults.config before overriding)
+################################################################################
+# The list of directories searched by loadMacros() when it looks for a .pl file
+# is defined in defaults.config.
+# To add a directory to this list, use the following syntax:
+#
+#  $pg{directories}{macrosPath} = [@{$pg{directories}{macrosPath}},"/path/to/new/location"];
+#
+# If your new directory is a subdirectory of the National Problem Library, you may use the prefix of
+# $courseDirs{templates}/Library/ (such as "$courseDirs{templates}/Library/mymacrosdir")
+# Note: This will look for macro files in your new location only after checking all of the locations
+# already defined in defaults.config.
+# You may reverse the order of the two arguments above AT YOUR OWN RISK, as this will check your
+# new location even before the local directory of the problem, so your new location will take
+# precedence over all other locations.
+
+################################################################################
+# Problem creation defaults
+################################################################################
+
+# The default weight (also called value) of a problem to use when using the
+# Library Browser, Problem Editor or Hmwk Sets Editor to add problems to a set
+# or when this value is left blank in an imported set definition file.
+
+#$problemDefaults{value} = 1;
+
+# The default max_attempts for a problem to use when using the
+# Library Browser, Problem Editor or Hmwk Sets Editor to add problems to a set
+# or when this value is left blank in an imported set definition file.  Note that
+# setting this to -1 gives students unlimited attempts.
+
+#$problemDefaults{max_attempts} = -1;
+
+# The default showMeAnother for a problem to use when using the
+# Library Browser, Problem Editor or Hmwk Sets Editor to add problems to a set
+# or when this value is left blank in an imported set definition file.  Note that
+# setting this to -1 disables the showMeAnother button
+#$problemDefaults{showMeAnother} = -1;
+
+# The default prPeriod value (re-randomization period) to use for the newly created problem.
+# It is suggested to use the value of -1, which means that the course-wide setting would be used
+# Setting this to -1 defaults to the use of course-wide settings (suggested)
+# Setting this to 0 disables periodic randomization regardless of the course-wide setting
+# Setting this to a positive value will override the course-wide setting
+#$problemDefaults{prPeriod} = -1;
+
+# The default number of attempts after which to show hints for newly created problems.
+# It is suggested to use the value of -2, which means that the course-wide setting would be used
+# Setting this to -2 defaults to the use of course-wide settings (suggested)
+# Setting this to -1 disables hints in problems.
+# Setting this to 0 or more will show hints after that number of attempts.
+#$problemDefaults{showHintsAfter} = 2;
+
+################################################################################
+# Enter key behavior
+################################################################################
+# If this is set to "preview", hitting the enter key on a problem page activates
+# the "Preview My Answers" button. If this is set to "submit", then the enter
+# key activates the "Submit Answers" button instead. Or if that button is not
+# present, it will activate the "Check Answers" button. Or if that button is
+# also not present, it will just activate the "Preview My Answers" button.
+# A third option is "conservative". In this case, the enter key behaves like "preview"
+# when the "Submit" button is available and there are only finitely many
+# attempts allowed. Otherise the enter key behaves like "submit".
+#$pg{options}{enterKey} = 'conservative';
+
+################################################################################
+# Periodic re-randomization
+################################################################################
+# switch to enable periodic re-randomization
+#$pg{options}{enablePeriodicRandomization} = 0;
+# course-wide default period for re-randomization, should be an integer
+# the value of 0 disables re-randomization
+#$pg{options}{periodicRandomizationPeriod} = 5;
+
+
+################################################################################
+# "Special" PG environment variables. (Stuff that doesn't fit in anywhere else.)
+################################################################################
+
+# Determines whether or not MathObjects contexts will parse the alternative tokens
+# listed in the "alternatives" property (mostly for unicode alternatives for parse tokens).
+# $pg{specialPGEnvironmentVars}{parseAlternatives} = 1;
+
+# Determines whether or not the MathObjects parser will convert the Full Width Unicode block
+# (U+FF01 to U+FF5E) to their corresponding ASCII characters (U+0021 to U+007E) automatically.
+# $pg{specialPGEnvironmentVars}{convertFullWidthCharacters} = 1;
+
+# Application that the PGtikz.pl and PGlateximage.pl macros will use to create svg images.
+# This should be either 'pdf2svg' or 'dvisvgm'.  The default is 'pdf2svg'.
+# If the system version of latex is 3.14159265-2.6-1.40.20 (TeX Live 2019) or newer
+# and the system version of dvisvgm is 2.8.1 or newer, then change this to 'dvisvgm'
+# by uncommenting the line below.  'dvisvgm' will generally create better 'svg'
+# images.
+#$pg{specialPGEnvironmentVars}{latexImageSVGMethod} = "dvisvgm";
+
+# When ImageMagick is used for image conversions, this sets the default options.
+# See https://imagemagick.org/script/convert.php for a full list of options.
+# convert will be called as:
+# convert <input options> file.ext1 <output options> file.ext2
+#$pg{specialPGEnvironmentVars}{latexImageConvertOptions} = {input => {density => 72}, output => {quality => 92}};
+
+###############################################################################
+# Math entry assistance
+###############################################################################
+
+#$pg{specialPGEnvironmentVars}{entryAssist} = 'MathQuill';
+#$pg{specialPGEnvironmentVars}{entryAssist} = 'MathView';
+
+################################################################################
+# Directory for temporary files
+################################################################################
+# Location of web-accessible temporary files, such as equation images.
+# Default which is set in defaults.config:
+#$webworkDirs{htdocs_temp}   = "$webworkDirs{htdocs}/tmp";
+#$webworkURLs{htdocs_temp}   = "$webworkURLs{htdocs}/tmp";
+
+# Alternate locations -- this allows you to place temporary files in a location
+# that is not backed up and is the recommended set up for most installations.
+# See http://webwork.maa.org/wiki/Store_WeBWorK%27s_temporary_files_in_a_separate_directory_or_partition
+# for more information.   Note that the wwtmp directory (or partition) should be
+# created under Apache's main server document root which is usually
+# /var/www/html. If this is in a different location on your system, edit the
+# lines below accordingly.  Note that you will also need to ensure server user
+# has read and write permission for the directory.
+# To implement, uncomment the following 6 lines:
+#$webworkDirs{htdocs_temp}   = '/var/www/html/wwtmp';
+#$webworkURLs{htdocs_temp}   = '/wwtmp';
+#$webworkDirs{equationCache} = "$webworkDirs{htdocs_temp}/equations";
+#$webworkURLs{equationCache} = "$webworkURLs{htdocs_temp}/equations";
+#$courseDirs{html_temp}      = "/var/www/html/wwtmp/$courseName";
+#$courseURLs{html_temp}      = "/wwtmp/$courseName";
+
+#####################
+# Additional PG modules
+#####################
+
+#push (@{${pg}{modules}}, [qw(LaTeXImage)]);
+################################################################################
+# Student Date Format
+################################################################################
+
+# Uncomment the following line to customize the format of the dates displayed to
+# students.  As it is written, the line below will display open, due and answer
+# dates in the following format: Wed Jun 27 at 10:30am
+# For all available options, consult the documentation for perl DateTime under
+# "strftime patterns".
+#$studentDateDisplayFormat="%a %b %d at %l:%M%P";
+
+################################################################################
+# Using R with WeBWorK
+################################################################################
+
+# To enable Rserve (the R statistical server) in WeBWorK, uncomment the
+# following line.  The R server needs to be installed and running in order for
+# this to work.  See http://webwork.maa.org/wiki/R_in_WeBWorK for more info.
+
+#$pg{specialPGEnvironmentVars}{Rserve} = {host => "localhost"};
+
+# use this setting when running Rserve in a docker container.
+#$pg{specialPGEnvironmentVars}{Rserve} = {host => "r"};
+
+
+################################################################################
+# Serving Opaque client questions to moodle
+################################################################################
+
+
+# this snippet checks to see if Moodle has already called MathJax
+# $pg{specialPGEnvironmentVars}{problemPreamble} = { TeX => '', HTML=> <<END_PREAMBLE };
+#
+# 	<script type="text/x-mathjax-config">
+# 	if (MathJax.Hub.Startup.params.config && MathJax.Hub.config.config.length) {
+# 	    MathJax.Hub.Config({
+# 	      config: [],
+# 	      skipStartupTypeset: false
+# 	    });
+# 	  }
+# 	</script>
+# END_PREAMBLE
+
+################################################################################
+# Authentication Methods
+################################################################################
+
+# Extra modules have been created to allow WeBWorK to use certain external
+# methods of authentication.
+
+################################################################################
+# IMS LTI Authentication
+################################################################################
+
+# Uncomment the following line to enable authentication via IMS LTI.
+# You will have to copy the file authen_LTI.conf.dist to authen_LTI.conf,
+# and then edit that file to fill in the settings for your installation.
+# You will also need to copy and edit authen_LTI_1_1.conf.dist to
+# authen_LTI_1_1.conf, or authen_LTI_1_3.conf.dist to authen_LTI_1_3.conf
+# depending on which is enabled in authen_LTI.conf (both can be enabled).
+
+#include("conf/authen_LTI.conf");
+
+################################################################################
+# LDAP Authentication
+################################################################################
+# Uncomment the following line to enable authentication via an LDAP server.
+# You will have to copy the file authen_ldap.conf.dist to authen_ldap.conf,
+# and then edit that file to fill in the settings for your installation.
+
+#include("conf/authen_ldap.conf");
+
+################################################################################
+# Session Management
+################################################################################
+
+## For a discussion of session_management_via session_cookies or the
+## Key database, see the   Session Management section
+## of defaults.config.dist
+
+## For session management using the key database table, uncomment the following line,
+## which will override the setting  $session_management_via = "session_cookie"
+## set in defaults.config.
+
+#$session_management_via = "key";
+
+## This is the length of time (in seconds) after which a user's session becomes
+## invalid if they have no activity. The default is 30 minutes (60*30 seconds).
+
+#$sessionKeyTimeout = 60*60*2;
+
+################################################################################
+# Cookie control settings
+################################################################################
+
+# The following variables can be set to control cookie behavior.
+
+# Set the value of the samesite attribute of the WeBWorK cookie:
+# See: https://blog.chromium.org/2019/10/developers-get-ready-for-new.html
+#      https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
+#      https://tools.ietf.org/html/draft-west-cookie-incrementalism-00
+
+# Notes about the $CookieSameSite options:
+# The "None" setting should only be used with HTTPS and when $CookieSecure = 1; is set below. The "None" setting is
+# also less secure and can allow certain types of cross-site attacks.
+# The "Strict" setting can break the links in the system generated feedback emails when read in a web mail client.
+# Due to those factors, the "Lax" setting is probably the optimal choice for typical WeBWorK servers.
+
+#$CookieSameSite = "None";
+#$CookieSameSite = "Strict";
+#$CookieSameSite = "Lax";
+
+# Set the value of the secure cookie attribute:
+# Default is 0 here, as 1 will not work without https
+#$CookieSecure = 1;
+
+# The CookieLifeTime setting determines how long the browser should retain the cookie.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
+# The CookieLifeTime value should be numeric and in seconds, or should be set to "session", in which case
+# the Cookie will expire when the browser session ends (a "session cookie").
+# The default value is 7 days.
+#$CookieLifeTime = 604800;
+#$CookieLifeTime = "session";
+
+################################################################################
+# Searching for set.def files to import
+################################################################################
+## Uncomment below so that when the homework sets editor searches for set def
+## files, it searches beyond templates; it can search deeper subfolders of
+## templates, and optionally also descend into Library
+
+#$options{setDefSearchDepth}=4; #search down 4 levels
+#$options{useOPLdefFiles}=1;
+
+################################################################################
+# Permission overrides (e.g. "admin", "professor", "ta", "student", "guest"
+################################################################################
+
+#$permissionLevels{show_resource_info}               = "admin";
+#$permissionLevels{show_pg_info}                     = "admin";
+#$permissionLevels{show_answer_hash_info}            = "admin";
+#$permissionLevels{show_answer_group_info}           = "admin";
+#$permissionLevels{modify_tags}                      = "admin";
+
+################################################################################
+# Hardcopy Theme
+################################################################################
+
+# Hardcopy themes are .xml files.  See assets/hardcopThemes/README.md for details
+# about their structure.  The site themes are files in $webworkDirs{hardcopyThemes}.
+# $hardcopyThemes identifies which site themes are enabled.
+#$hardcopyThemes = [
+#	'empty.xml',
+#	'basic.xml',
+#	'basicTwoCol.xml',
+#	'classic.xml',
+#	'classicTwoCol.xml',
+#	'oneColumn.xml',
+#	'twoColumn.xml',
+#	'boxed.xml',
+#	'boxedTwoCol.xml',
+#	'boxedRows.xml',
+#	'hebrew.xml',
+#	'hebrewTwoCol.xml',
+#];
+
+# The Hebrew themes need to use xelatex. Uncomment the following for xelatex
+#$externalPrograms{pdflatex} ="/usr/bin/xelatex --no-shell-escape";
+
+# A course may have additional themes in $courseDirs{hardcopyThemes}.  All such
+# "course" hardcopy themes are effectively enabled and offered for use when
+# selecting a hardcopy theme.  You can move such files or rename them to not
+# have a .xml extension if you don't want them to be offered for use.
+
+# If a course hardcopy theme has the same name as a site hardcopy theme, the
+# course hardcopy theme is the one that is used.
+
+# Default hardcopy themes (should either be an enabled site theme or a theme in
+# the course hardcopyThemes folder
+#$hardcopyTheme = 'twoColumn.xml';
+#$hardcopyThemePGEditor = 'empty.xml';
+
+################################################################################
+# Webwork Caliper
+################################################################################
+
+# enable/disable Caliper for install
+#$caliper{enabled} = 0;
+# base_url should ideally be hard coded to a persistent url pointing to the webwork root
+# (important to keep it consistent over time)
+#$caliper{base_url} = 'https://webwork.elearning.ubc.ca/webwork2/';
+# LRS endpoint
+#$caliper{host} = 'http://caliper.example.host.org/api/endpoint';
+# LRS endpoint Bearer API key
+#$caliper{api_key} = '1234567890abcdefg';
+# log file for caliper errors
+#$caliper{errorlog} = $webworkDirs{logs} . "/caliper_errors.log";
+# customized Caliper actor. Useful if persistent identifiers for students are available in WebWork
+# $caliper{custom_actor_generator} = sub {
+# 	my ($ce, $db, $user) = @_;
+# 	# set caliper id as needed
+# 	my $caliper_id = 'http://www.ubc.ca/' . $user->user_id();
+# 	return {
+# 		'id' => $caliper_id,
+# 		'type' => 'Person',
+# 		'name' => $user->first_name() . " " . $user->last_name(),
+# 	};
+# };
+
+1; #final line of the file to reassure perl that it was read properly.

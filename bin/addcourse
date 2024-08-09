@@ -1,0 +1,200 @@
+#!/usr/bin/env perl
+################################################################################
+# WeBWorK Online Homework Delivery System
+# Copyright &copy; 2000-2023 The WeBWorK Project, https://github.com/openwebwork
+#
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of either: (a) the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version, or (b) the "Artistic License" which comes with this package.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See either the GNU General Public License or the
+# Artistic License for more details.
+################################################################################
+
+=head1 NAME
+
+addcourse - add a course
+
+=head1 SYNOPSIS
+
+ addcourse [options] COURSEID
+
+=head1 DESCRIPTION
+
+Add a course to the courses directory. The required directories will be created.
+Optionally, a database can be populated with users. Also, one or more users can
+be granted professor privileges.
+
+=head1 OPTIONS
+
+=over
+
+=item B<--db-layout>=I<LAYOUT>
+
+The specified database layout will be used in place of the default specified in
+F<defaults.config>.
+
+=item B<--users>=I<FILE>
+
+The users listed in the comma-separated text file I<FILE> will be added to the
+user list of the new course. The format of this file is the same as user lists
+exported from WeBWorK.
+
+=item B<--professors>=I<USERID>[,I<USERID>]...
+
+Each I<USERID>, if it is present in the new course's user list, will be granted
+professor privileges (i.e. a permission level of 10). Requires B<--users>.
+
+=item B<--templates-from>=I<COURSEID>
+
+If specified, the contents of the specified course's templates directory are
+used to populate the new course's templates directory.
+
+=item I<COURSEID>
+
+The name of the course to create.
+
+=back
+
+=cut
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+BEGIN {
+	use Mojo::File qw(curfile);
+	use Env qw(WEBWORK_ROOT);
+
+	$WEBWORK_ROOT = curfile->dirname->dirname;
+}
+
+# link to WeBWorK and pg code libraries
+use lib "$ENV{WEBWORK_ROOT}/lib";
+
+use WeBWorK::CourseEnvironment;
+
+# Grab course environment (by reading webwork2/conf/defaults.config)
+my $ce = WeBWorK::CourseEnvironment->new;
+
+use WeBWorK::DB;
+use WeBWorK::File::Classlist;
+use WeBWorK::Utils qw(runtime_use cryptPassword);
+use WeBWorK::Utils::CourseManagement qw(addCourse);
+
+sub usage_error {
+	warn "@_\n";
+	warn "usage: $0 [options] COURSEID\n";
+	warn "Options:\n";
+	warn "  [--db-layout=LAYOUT]\n";
+	warn "  [--users=FILE [--professors=USERID[,USERID]...] ]\n";
+	exit;
+}
+
+my ($dbLayout, $users, $templates_from) = ('', '', '');
+my @professors;
+
+GetOptions(
+	"db-layout=s"      => \$dbLayout,
+	"users=s"          => \$users,
+	"professors=s"     => \@professors,
+	"templates-from=s" => \$templates_from,
+);
+my %professors = map { $_ => 1 } map { split /,/ } @professors;
+my $courseID   = shift;
+
+usage_error('The COURSEID must be provided.') unless $courseID;
+
+$ce = WeBWorK::CourseEnvironment->new({ courseName => $courseID });
+
+die "Aborting addcourse: Course ID cannot exceed $ce->{maxCourseIdLength} characters."
+	if length($courseID) > $ce->{maxCourseIdLength};
+
+if ($dbLayout) {
+	die "Database layout $dbLayout does not exist in the course environment.",
+		" (It must be defined in defaults.config.)\n"
+		unless exists $ce->{dbLayouts}{$dbLayout};
+} else {
+	$dbLayout = $ce->{dbLayoutName};
+}
+
+usage_error("Can't specify --professors without also specifying --users.")
+	if @professors && !$users;
+
+my @users;
+if ($users) {
+	# This is a hack to create records without bringing up a DB object
+	my $userClass       = $ce->{dbLayouts}{$dbLayout}{user}{record};
+	my $passwordClass   = $ce->{dbLayouts}{$dbLayout}{password}{record};
+	my $permissionClass = $ce->{dbLayouts}{$dbLayout}{permission}{record};
+
+	runtime_use($userClass);
+	runtime_use($passwordClass);
+	runtime_use($permissionClass);
+
+	my @classlist = parse_classlist($users);
+	for my $record (@classlist) {
+		my %record  = %$record;
+		my $user_id = $record{user_id};
+
+		# Set the default status if the status field is not set.
+		$record{status} = $ce->{statuses}{Enrolled}{abbrevs}[0] unless $record{status};
+
+		# Set the password if the password field is empty.
+		if (!defined $record{password} || $record{password} !~ /\S/) {
+			if (defined $record{student_id} && $record{student_id} =~ /\S/) {
+				# Use the student ID if it is non-empty.
+				$record{password} = cryptPassword($record{student_id});
+			} else {
+				# An empty password field in the database disables password login.
+				$record{password} = '';
+			}
+		}
+
+		# Set permission
+		if (!$record{status} && defined $professors{$user_id}) {
+			$record{permission} = $ce->{userRoles}{professor};
+		}
+
+		delete $professors{$user_id};
+
+		push @users,
+			[
+				$userClass->new(%record),
+				$passwordClass->new(user_id => $user_id, password => $record{password}),
+				$permissionClass->new(
+					user_id    => $user_id,
+					permission => defined $professors{$user_id}
+					? $ce->{userRoles}{professor}
+					: ($record{permission} // $ce->{default_permission_level})
+				)
+			];
+	}
+
+	if (my @ids = keys %professors) {
+		warn "Warning: The following users were not in the imported list:\n" . join("\n", @ids) . "\n";
+	}
+}
+
+my %optional_arguments;
+if ($templates_from ne "") {
+	$optional_arguments{templatesFrom} = $templates_from;
+}
+
+eval {
+	addCourse(
+		courseID      => $courseID,
+		ce            => $ce,
+		courseOptions => { dbLayoutName => $dbLayout },
+		users         => \@users,
+		%optional_arguments,
+	);
+};
+
+die "$@\n" if $@;
+
+print qq{Successfully added "$courseID" course.\n};

@@ -1,0 +1,12 @@
+This is the README file for the WeBWorK htdocs/js folder.
+
+Please follow these guidelines for javascript used by WeBWorK.
+
+js: This directory contains first party WeBWorK javascript.
+    Each library/app should have its own directory.
+
+All third party javascript and css libraries will be installed by npm.
+Run `npm install libname` in the htdocs directory to install a new library.
+Run `npm install` in the htdocs directory to install libraries.
+Run `npm ci` in the htdocs directory to install the precise versions of libraries defined in package-lock.json.
+The resulting libraries are installed in htdocs/node_modules.

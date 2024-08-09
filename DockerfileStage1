@@ -1,0 +1,152 @@
+# This is the Stage 1 Dockerfile, which builds a base OS image (webwork-base)
+# on top of which the WeBWorK parts will be installed by the Stage 2 Dockerfile.
+
+FROM ubuntu:22.04
+
+# ==================================================================
+# Phase 1 - Set base OS image install stage ENV variables
+
+ARG ADDITIONAL_BASE_IMAGE_PACKAGES
+
+ENV DEBIAN_FRONTEND=noninteractive \
+	DEBCONF_NONINTERACTIVE_SEEN=true
+
+# ==================================================================
+# Phase 2 - Install required packages
+
+# Do NOT include "apt-get -y upgrade"
+# see: https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends --no-install-suggests \
+	apt-utils \
+	ca-certificates \
+	cpanminus \
+	culmus \
+	curl \
+	debconf-utils \
+	dvipng \
+	dvisvgm \
+	fonts-linuxlibertine \
+	gcc \
+	git \
+	imagemagick \
+	iputils-ping \
+	jq \
+	libarchive-zip-perl \
+	libarray-utils-perl \
+	libc6-dev \
+	libcapture-tiny-perl \
+	libclass-tiny-antlers-perl \
+	libclass-tiny-perl \
+	libcpanel-json-xs-perl \
+	libcrypt-jwt-perl \
+	libcryptx-perl \
+	libdata-dump-perl \
+	libdata-structure-util-perl \
+	libdatetime-perl \
+	libdbd-mysql-perl \
+	libdevel-checklib-perl \
+	libemail-address-xs-perl \
+	libemail-date-format-perl \
+	libemail-sender-perl \
+	libemail-stuffer-perl \
+	libexception-class-perl \
+	libextutils-config-perl \
+	libextutils-helpers-perl \
+	libextutils-installpaths-perl \
+	libextutils-xsbuilder-perl \
+	libfile-find-rule-perl-perl \
+	libfile-sharedir-install-perl \
+	libfuture-asyncawait-perl \
+	libgd-perl \
+	libhtml-scrubber-perl \
+	libhtml-template-perl \
+	libhttp-async-perl \
+	libiterator-perl \
+	libiterator-util-perl \
+	libjson-maybexs-perl \
+	libjson-perl \
+	libjson-xs-perl \
+	liblocale-maketext-lexicon-perl \
+	libmail-sender-perl \
+	libmail-sender-perl \
+	libmariadb-dev \
+	libmath-random-secure-perl \
+	libmime-tools-perl \
+	libminion-backend-sqlite-perl \
+	libminion-perl \
+	libmodule-build-perl \
+	libmodule-pluggable-perl \
+	libmojolicious-perl \
+	libmojolicious-plugin-renderfile-perl \
+	libnet-https-nb-perl \
+	libnet-ip-perl \
+	libnet-ldap-perl \
+	libnet-oauth-perl \
+	libossp-uuid-perl \
+	libpadwalker-perl \
+	libpandoc-wrapper-perl \
+	libpath-class-perl \
+	libpath-tiny-perl \
+	libphp-serialization-perl \
+	libpod-wsdl-perl \
+	libsoap-lite-perl \
+	libsql-abstract-classic-perl \
+	libsql-abstract-perl \
+	libstring-shellquote-perl \
+	libsub-uplevel-perl \
+	libsvg-perl \
+	libtemplate-perl \
+	libtest-deep-perl \
+	libtest-exception-perl \
+	libtest-fatal-perl \
+	libtest-mockobject-perl \
+	libtest-pod-perl \
+	libtest-requires-perl \
+	libtest-warn-perl \
+	libtest-xml-perl \
+	libtext-csv-perl \
+	libthrowable-perl \
+	libtimedate-perl \
+	libuniversal-can-perl \
+	libuniversal-isa-perl \
+	libuuid-tiny-perl \
+	libxml-parser-easytree-perl \
+	libxml-parser-perl \
+	libxml-semanticdiff-perl \
+	libxml-simple-perl \
+	libxml-writer-perl \
+	libxml-xpath-perl \
+	libyaml-libyaml-perl \
+	lmodern \
+	locales \
+	make \
+	mariadb-client \
+	netpbm \
+	patch \
+	pdf2svg \
+	preview-latex-style \
+	ssl-cert \
+	sudo \
+	texlive \
+	texlive-lang-arabic \
+	texlive-lang-other \
+	texlive-latex-extra \
+	texlive-plain-generic \
+	texlive-science \
+	texlive-xetex \
+	tzdata \
+	zip $ADDITIONAL_BASE_IMAGE_PACKAGES \
+	&& curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+	&& apt-get install -y --no-install-recommends --no-install-suggests nodejs \
+	&& apt-get clean \
+	&& rm -fr /var/lib/apt/lists/* /tmp/*
+
+# ==================================================================
+# Phase 3 - Install additional Perl modules from CPAN that are not packaged for Ubuntu or are outdated in Ubuntu.
+
+RUN cpanm install -n Statistics::R::IO DBD::MariaDB Mojo::SQLite@3.002 Perl::Tidy@20220613 \
+	&& rm -fr ./cpanm /root/.cpanm /tmp/*
+
+# ==================================================================
